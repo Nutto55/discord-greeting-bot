@@ -34,7 +34,7 @@ async def greeting(interaction: discord.Interaction):
 
         bot_voice = interaction.guild.voice_client
 
-        if bot_voice:
+        if bot_voice is not None:
             if bot_voice.channel.id == user_voice.channel.id:
                 await interaction.response.send_message("I'm in your voice channel!")
                 return
