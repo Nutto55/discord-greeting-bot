@@ -46,7 +46,9 @@ async def on_voice_state_update(
 
             current_channel_id = int(after.channel.id)
             current_channel = bot.get_channel(current_channel_id)
-            greeting_item = Greeting(member.nick)
+            name = member.nick if member.nick else member.name
+            print(f'{name} is entering')
+            greeting_item = Greeting(name)
             greeting_obj = greeting_item.greeting_by_person()
             voice_client = member.guild.voice_client if member.guild.voice_client else await current_channel.connect()
             audio_source = discord.FFmpegPCMAudio(source=greeting_obj, pipe=True)
