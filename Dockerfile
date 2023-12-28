@@ -1,6 +1,11 @@
-FROM python:3.11
+FROM python:3.12
 
 WORKDIR /app
+
+ENV DISCORD_TOKEN=$DISCORD_TOKEN
+RUN apt-get -y update \
+    && apt-get -y upgrade \
+    && apt-get install -y --no-install-recommends ffmpeg
 
 # Install dependencies
 COPY requirements.txt .

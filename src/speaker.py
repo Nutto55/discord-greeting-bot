@@ -2,9 +2,10 @@ from gtts import gTTS
 from io import BytesIO
 from pydub import AudioSegment
 from pydub.playback import play
+from pydub.effects import speedup
 import random
 
-class Greeting:
+class Speaker:
     """
         A class for sending greeting message
     """
@@ -20,8 +21,9 @@ class Greeting:
             None.
         """
         mp3_file_object = self.generate_mp3_file_object(text)
-        sound = AudioSegment.from_mp3(mp3_file_object)
-        play(sound)
+        audio = AudioSegment.from_mp3(mp3_file_object)
+        speedup_audio = speedup(audio, 1.5, 150)
+        play(speedup_audio)
 
     def greeting_all(self):
         """Greeting all people in mp3 file object
@@ -44,8 +46,8 @@ class Greeting:
             'ว่าไง',
             'ขอบคุณที่แวะมานะ',
             'หนีห่าว',
-            'มาทวงงานใครคะ',
-            'บองชู้ว'
+            'บองชู้ว',
+            'เฮลโล'
         ]
         return self.generate_mp3_file_object(f'{random.choice(greeting_list)} {self.name}')
 

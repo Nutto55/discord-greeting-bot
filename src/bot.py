@@ -1,11 +1,9 @@
 import os
-from dotenv import load_dotenv
 import discord
 import asyncio
 from discord.ext import commands
-from greeting import Greeting
+from speaker import Speaker
 
-load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 intents = discord.Intents.all()
@@ -48,7 +46,7 @@ async def on_voice_state_update(
             current_channel = bot.get_channel(current_channel_id)
             name = member.nick if member.nick else member.name
             print(f'{name} is entering')
-            greeting_item = Greeting(name)
+            greeting_item = Speaker(name)
             greeting_obj = greeting_item.greeting_by_person()
             voice_client = member.guild.voice_client if member.guild.voice_client else await current_channel.connect()
             audio_source = discord.FFmpegPCMAudio(source=greeting_obj, pipe=True)
@@ -81,8 +79,8 @@ async def greeting(interaction: discord.Interaction):
 
         await user_voice.channel.connect()
 
-        greeting_item = Greeting()
-        greeting_obj = greeting_item.greeting_all()
+        speaker = Speaker()
+        greeting_obj = speaker.greeting_all()
         audio_source = discord.FFmpegPCMAudio(source=greeting_obj, pipe=True)
         interaction.guild.voice_client.play(audio_source)
         await interaction.response.send_message("I'm joining")
@@ -101,8 +99,14 @@ async def goodbye(interaction: discord.Interaction):
         bot_voice = interaction.guild.voice_client
         if bot_voice is not None:
             if bot_voice.channel.id == user_voice.channel.id:
+                speaker = Speaker()
+                goodbye_obj = speaker.generate_mp3_file_object("ไว้พบกันใหม่นะคะ บรั๊ยย")
+                audio_source = discord.FFmpegPCMAudio(source=goodbye_obj, pipe=True)
+                interaction.guild.voice_client.play(audio_source)
+                await interaction.response.defer()
+                await asyncio.sleep(2)
+                await interaction.followup.send("See you later!")
                 await bot_voice.disconnect()
-                await interaction.response.send_message("See you later!")
                 return
 
         await interaction.response.send_message("I'm not in any voice channel")
