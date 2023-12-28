@@ -46,18 +46,16 @@ jobs:
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v2"
 
-      - name: "Deploy `Job` to Cloud Run"
+      - name: "Deploy and Execute `Job` to Cloud Run"
         id: deploy
         run: |
-          gcloud run jobs deploy --quiet \
+          gcloud run jobs deploy ${{ env.SERVICE }} --quiet \
             --image ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }} \
             --set-secrets DISCORD_TOKEN=DISCORD_TOKEN:latest \
             --labels managed-by=github-actions,commit-sha=${{ github.sha }} \
             --format json \
-            --region ${{ env.REGION }}
-
-      - name: "Execute `Job` on Cloud Run"
-        run: gcloud run jobs execute ${{ env.SERVICE }}
+            --region ${{ env.REGION }} \
+            --execute-now
 
       # - name: "Deploy to Cloud Run"
       #   id: deploy
