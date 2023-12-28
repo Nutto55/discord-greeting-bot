@@ -57,9 +57,9 @@ jobs:
             --format json \
             --region ${{ env.REGION }} \
             --allow-unauthenticated \
-            --service-account ${{ secrets.GCP_SA_EMAIL }}"
+            --service-account ${{ secrets.GCP_SA_EMAIL }}
 
-      - name: "Run `Job` on Cloud Run"
+      - name: "Execute `Job` on Cloud Run"
         run: gcloud run jobs execute ${{ env.SERVICE }}
 
       # - name: "Deploy to Cloud Run"
