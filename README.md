@@ -19,5 +19,5 @@ docker build -t greeting-bot .
 
 2. Run docker
 ```
-docker run --rm greeting-bot -e DISCORD_TOKEN=<YOUR_DISCORD_TOKEN>
+docker run --rm -e DISCORD_TOKEN=<YOUR_DISCORD_TOKEN> greeting-bot
 ```
