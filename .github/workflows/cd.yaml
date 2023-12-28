@@ -54,9 +54,7 @@ jobs:
             --set-secrets DISCORD_TOKEN=DISCORD_TOKEN:latest \
             --labels managed-by=github-actions,commit-sha=${{ github.sha }} \
             --format json \
-            --region ${{ env.REGION }} \
-            --allow-unauthenticated \
-            --service-account ${{ secrets.GCP_SA_EMAIL }}
+            --region ${{ env.REGION }}
 
       - name: "Execute `Job` on Cloud Run"
         run: gcloud run jobs execute ${{ env.SERVICE }}
