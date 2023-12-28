@@ -100,7 +100,7 @@ async def goodbye(interaction: discord.Interaction):
         if bot_voice is not None:
             if bot_voice.channel.id == user_voice.channel.id:
                 speaker = Speaker()
-                goodbye_obj = speaker.generate_mp3_file_object("ไว้พบกันใหม่นะคะ บรั๊ยย")
+                goodbye_obj = speaker.generate_mp3_file_object("ไว้พบกันใหม่นะคะ บะบาย")
                 audio_source = discord.FFmpegPCMAudio(source=goodbye_obj, pipe=True)
                 interaction.guild.voice_client.play(audio_source)
                 await interaction.response.defer()

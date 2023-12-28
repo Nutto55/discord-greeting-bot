@@ -23,6 +23,10 @@ jobs:
       - name: "Checkout"
         uses: actions/checkout@v3
 
+      - name: Set docker image env var
+        run: |
+          echo "DOCKER_IMAGE=${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}" >> $GITHUB_ENV
+
       - name: "Google Auth"
         id: auth
         uses: google-github-actions/auth@v2
@@ -40,8 +44,8 @@ jobs:
 
       - name: "Build and push container"
         run: |-
-          docker build -t "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}" ./
-          docker push "${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}"
+          docker build -t "${{ env.DOCKER_IMAGE }}" ./
+          docker push "${{ env.DOCKER_IMAGE }}"
 
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v2"
@@ -50,22 +54,9 @@ jobs:
         id: deploy
         run: |
           gcloud run jobs deploy ${{ env.SERVICE }} --quiet \
-            --image ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }} \
+            --image ${{ env.DOCKER_IMAGE }} \
             --set-secrets DISCORD_TOKEN=DISCORD_TOKEN:latest \
             --labels managed-by=github-actions,commit-sha=${{ github.sha }} \
             --format json \
             --region ${{ env.REGION }} \
             --execute-now
-
-      # - name: "Deploy to Cloud Run"
-      #   id: deploy
-      #   uses: google-github-actions/deploy-cloudrun@v2
-      #   with:
-      #     job: ${{ env.SERVICE }}
-      #     region: ${{ env.REGION }}
-      #     image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}
-      #     flags: |
-      #       --allow-unauthenticated
-      #       --service-account="${{ secrets.GCP_SA_EMAIL }}"
-      #     secrets: |
-      #       DISCORD_TOKEN=DISCORD_TOKEN:latest
