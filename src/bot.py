@@ -3,19 +3,20 @@ import discord
 import asyncio
 from discord.ext import commands
 from speaker import Speaker
+from datetime import datetime
 
-TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.all()
 
-bot = commands.Bot(intents=intents, command_prefix='!')
+bot = commands.Bot(intents=intents, command_prefix="!")
 
 @bot.event
 async def on_ready():
     try:
-        print(f'{bot.user.name} has connected to Discord!')
+        print(f"{bot.user.name} has connected to Discord!")
         await bot.tree.sync()
-        print('synced command')
+        print("synced command")
     except Exception as e:
         print(e)
 
@@ -45,7 +46,7 @@ async def on_voice_state_update(
             current_channel_id = int(after.channel.id)
             current_channel = bot.get_channel(current_channel_id)
             name = member.nick if member.nick else member.name
-            print(f'{name} is entering')
+            print(f"{name} is entering")
             greeting_item = Speaker(name)
             greeting_obj = greeting_item.greeting_by_person()
             voice_client = member.guild.voice_client if member.guild.voice_client else await current_channel.connect()
@@ -58,7 +59,7 @@ async def on_voice_state_update(
 async def on_command():
     print("on command")
 
-@bot.tree.command(name='greeting', description='I will help you greeting people')
+@bot.tree.command(name="greeting", description="I will help you greeting people")
 async def greeting(interaction: discord.Interaction):
     try:
         user_voice = interaction.user.voice
@@ -86,9 +87,9 @@ async def greeting(interaction: discord.Interaction):
         await interaction.response.send_message("I'm joining")
     except Exception as e:
         print(e)
-        await interaction.response.send_message('Joining failed')
+        await interaction.response.send_message("Joining failed")
 
-@bot.tree.command(name='goodbye', description="I'm going out from voice channel")
+@bot.tree.command(name="goodbye", description="I'm going out from voice channel")
 async def goodbye(interaction: discord.Interaction):
     try:
         user_voice = interaction.user.voice
@@ -113,6 +114,32 @@ async def goodbye(interaction: discord.Interaction):
 
     except Exception as e:
         print(e)
-        await interaction.response.send_message('Joining failed')
+        await interaction.response.send_message("Joining failed")
+
+@bot.tree.command(name="daily",description="Alert people to daily channel")
+async def daily(interaction: discord.Interaction):
+    try:
+        await interaction.response.send_message("Let's daily")
+        channels = interaction.guild.channels
+        now = datetime.now()
+        message = f"Happy {now.strftime("%A")} มาเดลี่กันเถอะค่ะ"
+        speaker = Speaker()
+        daily_message = speaker.generate_mp3_file_object(message)
+        for channel in channels:
+            print(channel.id, channel.type, channel.name)
+            joinable = channel.permissions_for(channel.guild.me).connect
+            if channel.type.name == "voice" and joinable:
+                await channel.connect()
+                audio_source = discord.FFmpegPCMAudio(source=daily_message, pipe=True)
+                await asyncio.sleep(5)
+                channel.guild.voice_client.play(audio_source)
+                await asyncio.sleep(5)
+                bot_voice = channel.guild.voice_client
+                if bot_voice is not None:
+                    await bot_voice.disconnect()
+                    await asyncio.sleep(2)
+    except Exception as e:
+        print(e)
+        await interaction.response.send_message("Daily Failed")
 
 bot.run(TOKEN)
