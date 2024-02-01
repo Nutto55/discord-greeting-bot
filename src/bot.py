@@ -123,17 +123,17 @@ async def daily(interaction: discord.Interaction):
         channels = interaction.guild.channels
         now = datetime.now()
         message = f"Happy {now.strftime("%A")} มาเดลี่กันเถอะค่ะ"
-        speaker = Speaker()
-        daily_message = speaker.generate_mp3_file_object(message)
         for channel in channels:
             print(channel.id, channel.type, channel.name)
             joinable = channel.permissions_for(channel.guild.me).connect
             if channel.type.name == "voice" and joinable:
                 await channel.connect()
+                speaker = Speaker()
+                daily_message = speaker.generate_mp3_file_object(message)
                 audio_source = discord.FFmpegPCMAudio(source=daily_message, pipe=True)
-                await asyncio.sleep(5)
+                await asyncio.sleep(4)
                 channel.guild.voice_client.play(audio_source)
-                await asyncio.sleep(5)
+                await asyncio.sleep(8)
                 bot_voice = channel.guild.voice_client
                 if bot_voice is not None:
                     await bot_voice.disconnect()
